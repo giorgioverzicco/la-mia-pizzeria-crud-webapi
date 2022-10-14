@@ -1,0 +1,75 @@
+@model PizzaViewModel
+
+@{
+    ViewData["Title"] = "Edit a Pizza";
+}
+
+<div class="container py-1">
+    <div class="row pb-4">
+        <div class="col-md-6">
+            <h2>Edit @Model.Pizza.Name</h2>
+        </div>
+    </div>
+    
+    <form method="POST" asp-controller="Pizza" asp-action="Edit" asp-route-id="@Model.Pizza.Id" class="card bg-light has-validation">
+        <div class="card-body">
+            <div class="row g-3">
+                <input type="hidden" asp-for="Pizza.Id" />
+                
+                <div class="col-12">
+                    <label asp-for="Pizza.Category" class="form-label">Category</label>
+                    <select asp-for="Pizza.CategoryId" asp-items="Model.Categories" class="form-select">
+                        <option disabled selected>-- Select a Category --</option>
+                    </select>
+                    <span asp-validation-for="Pizza.CategoryId"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Pizza.Name" class="form-label">Name</label>
+                    <input asp-for="Pizza.Name" type="text" class="form-control">
+                    <span asp-validation-for="Pizza.Name"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Pizza.Price" class="form-label">Price</label>
+                    <input asp-for="Pizza.Price" type="number" min="0" max="100" value="@Model.Pizza.Price.ToString("###.##")" step=".50" class="form-control">
+                    <span asp-validation-for="Pizza.Price"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Pizza.Photo" class="form-label">Photo</label>
+                    <input asp-for="Pizza.Photo" type="text" class="form-control">
+                    <span asp-validation-for="Pizza.Photo"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Pizza.Description" class="form-label">Description</label>
+                    <textarea asp-for="Pizza.Description" rows="3" class="form-control"></textarea>
+                    <span asp-validation-for="Pizza.Description"></span>
+                </div>
+                
+                <div class="col-12">
+                    <label asp-for="IngredientIds" class="form-label">Ingredients</label>
+                    <select asp-for="IngredientIds" asp-items="Model.Ingredients" class="form-select" multiple size="6">
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        Update
+                    </button>
+                    <a asp-controller="Pizza" asp-action="Index" type="button" class="btn btn-secondary">
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts
+{
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}

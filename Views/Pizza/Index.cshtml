@@ -1,0 +1,77 @@
+@model List<Pizza>
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="py-1">
+  <div class="container">
+    <div class="row pb-4">
+      <div class="col-6">
+        <a asp-controller="Pizza" asp-action="Create" type="button" class="btn btn-primary">
+          <i class="bi bi-plus-circle"></i> &nbsp; Create New Pizza
+        </a>
+      </div>
+    </div>
+    
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      @foreach (var pizza in Model)
+      {
+        <div class="col">
+          <div class="card shadow-sm">
+            <img src="@pizza.Photo" alt="@pizza.Name" width="100%" height="225">
+
+            <div class="card-body">
+              <h3>@pizza.Name</h3>
+              <p class="card-text">
+                <span class="badge bg-primary">@pizza.Category!.Name</span>
+              </p>
+              <p class="card-text">
+                @pizza.Description
+              </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a asp-controller="Pizza" asp-action="Details" asp-route-id="@pizza.Id" type="button" class="btn btn-sm btn-info">
+                    <i class="bi bi-eye"></i> &nbsp; View
+                  </a>
+                  <a asp-controller="Pizza" asp-action="Edit" asp-route-id="@pizza.Id" type="button" class="btn btn-sm btn-warning">
+                    <i class="bi bi-pencil-square"></i> &nbsp; Edit
+                  </a>
+                  <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal_@pizza.Id">
+                    <i class="bi bi-trash3"></i> &nbsp; Delete
+                  </button>
+                </div>
+                <small class="text-muted">@pizza.Price.ToString("C")</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal_@pizza.Id" tabindex="-1" aria-labelledby="deleteModal_@(pizza.Id)_Label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModal_@(pizza.Id)_Label">Confirm deletion</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Are you sure you want to delete the category <span class="text-primary fw-bold">@pizza.Name</span>?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  <i class="bi bi-arrow-left-circle"></i> &nbsp; Back
+                </button>
+                <form method="POST" asp-controller="Pizza" asp-action="Delete" asp-route-id="@pizza.Id">
+                  <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash3"></i> &nbsp; Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

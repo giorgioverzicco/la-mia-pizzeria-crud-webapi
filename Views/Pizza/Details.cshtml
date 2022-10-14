@@ -1,0 +1,41 @@
+@model Pizza
+
+@{
+  ViewData["Title"] = "Details";
+}
+
+<div class="card bg-light fs-4">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img src="@Model.Photo" class="img-fluid rounded-start" alt="@Model.Name">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h2 class="card-title">@Model.Name</h2>
+        <p class="card-text">
+          <span class="badge bg-primary">@Model.Category!.Name</span>
+        </p>
+        <p class="card-text">
+          @Model.Description
+        </p>
+        @if (Model.Ingredients.Any())
+        {
+          <p class="card-text">
+            <span>Ingredients:</span>
+            
+            <ul>
+              @foreach (var ingredient in Model.Ingredients)
+              {
+                <li>@ingredient.Name</li>
+              }
+            </ul>
+          </p>
+        }
+        <p class="card-text text-end">
+          Price:
+          <small class="text-muted">@Model.Price.ToString("C")</small>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
