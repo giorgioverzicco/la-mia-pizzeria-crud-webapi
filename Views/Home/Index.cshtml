@@ -3,9 +3,20 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-6">Search Pizzas (watch the console for results)</h1>
 </div>
+
+<form id="searchForm">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label for="searchQuery" class="form-label">Search by name:</label>
+            <input type="text" class="form-control" id="searchQuery">
+        </div>
+        <div class="col-md-8 align-self-center">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+</form>
 
 @section Scripts
 {
@@ -15,6 +26,19 @@
     axios.get('api/pizzas')
         .then(response => {
             console.log(response.data);
-        })
+        });
+    
+    let searchForm = document.getElementById("searchForm");
+    searchForm.onsubmit = (e) => {
+        e.preventDefault();
+        
+        let queryParam = document.getElementById("searchQuery").value;
+        
+        axios.get('api/pizzas', { params: { name: queryParam } })
+                .then(response => {
+                    console.log("FILTERED PIZZAS");
+                    console.log(response.data);
+                });
+    };
     </script>
 }
