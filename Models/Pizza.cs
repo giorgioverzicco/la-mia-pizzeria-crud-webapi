@@ -31,5 +31,5 @@ public class Pizza
     public Category? Category { get; set; }
     
     [JsonIgnore]
-    public virtual ICollection<Ingredient> Ingredients { get; set; }
+    public virtual ICollection<Ingredient>? Ingredients { get; set; }
 }

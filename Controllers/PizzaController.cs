@@ -71,7 +71,7 @@ public class PizzaController : Controller
         
         pizza.Ingredients = 
             _ctx.Ingredients
-                .Where(x => pizzaVm.IngredientIds!.Contains(x.Id))
+                .Where(x => pizzaVm.IngredientIds.Contains(x.Id))
                 .ToList();
 
         _ctx.Pizzas.Add(pizza);
@@ -100,7 +100,7 @@ public class PizzaController : Controller
         
         var pizzaVm = GetViewModelWithDropDownLists();
         pizzaVm.Pizza = pizza;
-        pizzaVm.IngredientIds = pizza.Ingredients.Select(x => x.Id);
+        pizzaVm.IngredientIds = pizza.Ingredients!.Select(x => x.Id);
         
         return View(pizzaVm);
     }
@@ -115,11 +115,14 @@ public class PizzaController : Controller
             return View(pizzaVm);
         }
 
-        var pizza = 
+        var pizza =
             _ctx.Pizzas
                 .Include(x => x.Ingredients)
                 .FirstOrDefault(x => x.Id == pizzaVm.Pizza.Id)!;
-
+        
+        _ctx.Entry(pizza).State = EntityState.Detached;
+        
+        pizza = pizzaVm.Pizza;
         pizza.Ingredients = 
             _ctx.Ingredients
                 .Where(x => pizzaVm.IngredientIds.Contains(x.Id))
