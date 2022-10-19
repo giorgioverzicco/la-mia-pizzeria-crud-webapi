@@ -65,4 +65,10 @@ public class Repository<T> : IRepository<T>
     {
         _dbSet.RemoveRange(entities);
     }
+
+    public bool Exists(Expression<Func<T, bool>> filter)
+    {
+        IQueryable<T> query = _dbSet;
+        return query.Any(filter);
+    }
 }

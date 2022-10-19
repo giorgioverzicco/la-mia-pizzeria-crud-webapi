@@ -29,7 +29,7 @@ namespace la_mia_pizzeria_crud_webapi.Controllers.Api
         }
         
         [HttpGet]
-        [Route("{id:int}", Name = "Get")]
+        [Route("{id:int}")]
         public IActionResult Get(int id)
         {
             var message = _unitOfWork.Message.GetFirstOrDefault(x => x.Id == id);
