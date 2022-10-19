@@ -1,4 +1,4 @@
-namespace la_mia_pizzeria_crud_webapi.Models;
+namespace la_mia_pizzeria_crud_webapi.Models.ViewModels;
 
 public class ErrorViewModel
 {

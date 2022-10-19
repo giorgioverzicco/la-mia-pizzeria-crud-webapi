@@ -1,4 +1,4 @@
-@model PizzaViewModel
+@model la_mia_pizzeria_crud_webapi.Models.ViewModels.PizzaVm
 
 @{
     ViewData["Title"] = "Create New Pizza";
@@ -47,8 +47,8 @@
                 </div>
                 
                 <div class="col-12">
-                    <label asp-for="IngredientIds" class="form-label">Ingredients</label>
-                    <select asp-for="IngredientIds" asp-items="Model.Ingredients" class="form-select" multiple size="6">
+                    <label asp-for="SelectedIngredients" class="form-label">Ingredients</label>
+                    <select asp-for="SelectedIngredients" asp-items="Model.Ingredients" class="form-select" multiple size="6">
                     </select>
                 </div>
 

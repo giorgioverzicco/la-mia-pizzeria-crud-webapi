@@ -1,18 +1,24 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace la_mia_pizzeria_crud_webapi.Models;
+namespace la_mia_pizzeria_crud_webapi.Models.ViewModels;
 
-public class PizzaViewModel
+public class PizzaVm
 {
-    public PizzaViewModel()
+    public PizzaVm()
     {
         Categories = new List<SelectListItem>();
-        IngredientIds = new List<int>();
+        SelectedIngredients = new List<int>();
         Ingredients = new List<SelectListItem>();
     }
     
     public Pizza Pizza { get; set; } = null!;
+    
+    [ValidateNever]
     public IEnumerable<SelectListItem> Categories { get; set; }
-    public IEnumerable<int> IngredientIds { get; set; }
+    
+    public IEnumerable<int> SelectedIngredients { get; set; }
+    
+    [ValidateNever]
     public IEnumerable<SelectListItem> Ingredients { get; set; }
 }

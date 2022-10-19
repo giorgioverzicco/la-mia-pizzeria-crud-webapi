@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using la_mia_pizzeria_crud_webapi.Data;
+using la_mia_pizzeria_crud_webapi.Interfaces;
 using la_mia_pizzeria_crud_webapi.Models;
+using la_mia_pizzeria_crud_webapi.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 
 namespace la_mia_pizzeria_crud_webapi.Controllers;
@@ -11,20 +13,19 @@ namespace la_mia_pizzeria_crud_webapi.Controllers;
 public class PizzaController : Controller
 {
     private readonly ApplicationDbContext _ctx;
+    private readonly IUnitOfWork _unitOfWork;
     
-    public PizzaController(ApplicationDbContext ctx)
+    public PizzaController(ApplicationDbContext ctx, IUnitOfWork unitOfWork)
     {
         _ctx = ctx;
+        _unitOfWork = unitOfWork;
     }
 
     // GET
     public IActionResult Index()
     {
-        List<Pizza> pizzas = 
-            _ctx.Pizzas
-                .Include(x => x.Category)
-                .Include(x => x.Ingredients)
-                .ToList();
+        var pizzas = 
+            _unitOfWork.Pizza.GetAll("Category,Ingredients");
         return View(pizzas);
     }
     
@@ -35,12 +36,12 @@ public class PizzaController : Controller
         {
             return NotFound();
         }
-
-        Pizza? pizza = 
-            _ctx.Pizzas
-                .Include(x => x.Category)
-                .Include(x => x.Ingredients)
-                .FirstOrDefault(x => x.Id == id);
+        
+        var pizza = 
+            _unitOfWork.Pizza
+                .GetFirstOrDefault(
+                    x => x.Id == id, 
+                    "Category,Ingredients");
 
         if (pizza is null)
         {
@@ -60,7 +61,7 @@ public class PizzaController : Controller
     // POST: Pizza/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(PizzaViewModel pizzaVm)
+    public IActionResult Create(PizzaVm pizzaVm)
     {
         if (!ModelState.IsValid)
         {
@@ -68,14 +69,14 @@ public class PizzaController : Controller
         }
 
         var pizza = pizzaVm.Pizza;
-        
-        pizza.Ingredients = 
-            _ctx.Ingredients
-                .Where(x => pizzaVm.IngredientIds.Contains(x.Id))
+
+        pizza.Ingredients =
+            _unitOfWork.Ingredient
+                .GetSelectedIngredients(pizzaVm.SelectedIngredients)
                 .ToList();
 
-        _ctx.Pizzas.Add(pizza);
-        _ctx.SaveChanges();
+        _unitOfWork.Pizza.Add(pizza);
+        _unitOfWork.Save();
         
         return RedirectToAction(nameof(Index));
     }
@@ -87,11 +88,12 @@ public class PizzaController : Controller
         {
             return NotFound();
         }
-
-        Pizza? pizza = 
-            _ctx.Pizzas
-                .Include(x => x.Ingredients)
-                .FirstOrDefault(x => x.Id == id);
+        
+        var pizza = 
+            _unitOfWork.Pizza
+                .GetFirstOrDefault(
+                    x => x.Id == id, 
+                    "Ingredients");
 
         if (pizza is null)
         {
@@ -100,7 +102,7 @@ public class PizzaController : Controller
         
         var pizzaVm = GetViewModelWithDropDownLists();
         pizzaVm.Pizza = pizza;
-        pizzaVm.IngredientIds = pizza.Ingredients!.Select(x => x.Id);
+        pizzaVm.SelectedIngredients = pizza.Ingredients!.Select(x => x.Id);
         
         return View(pizzaVm);
     }
@@ -108,28 +110,20 @@ public class PizzaController : Controller
     // POST: Pizza/Edit/{id?}
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(PizzaViewModel pizzaVm)
+    public IActionResult Edit(PizzaVm pizzaVm)
     {
         if (!ModelState.IsValid)
         {
             return View(pizzaVm);
         }
-
-        var pizza =
-            _ctx.Pizzas
-                .Include(x => x.Ingredients)
-                .FirstOrDefault(x => x.Id == pizzaVm.Pizza.Id)!;
         
-        _ctx.Entry(pizza).State = EntityState.Detached;
-        
-        pizza = pizzaVm.Pizza;
-        pizza.Ingredients = 
-            _ctx.Ingredients
-                .Where(x => pizzaVm.IngredientIds.Contains(x.Id))
+        var ingredients = 
+            _unitOfWork.Ingredient
+                .GetSelectedIngredients(pizzaVm.SelectedIngredients)
                 .ToList();
 
-        _ctx.Pizzas.Update(pizza);
-        _ctx.SaveChanges();
+        _unitOfWork.Pizza.Update(pizzaVm.Pizza, ingredients);
+        _unitOfWork.Save();
         
         return RedirectToAction(nameof(Index));
     }
@@ -144,48 +138,26 @@ public class PizzaController : Controller
             return NotFound();
         }
         
-        Pizza? pizza = _ctx.Pizzas.Find(id);
+        var pizza = _unitOfWork.Pizza.GetFirstOrDefault(x => x.Id == id);
 
         if (pizza is null)
         {
             return NotFound();
         }
         
-        _ctx.Pizzas.Remove(pizza);
-        _ctx.SaveChanges();
+        _unitOfWork.Pizza.Remove(pizza);
+        _unitOfWork.Save();
         
         return RedirectToAction(nameof(Index));
     }
 
-    private PizzaViewModel GetViewModelWithDropDownLists()
+    private PizzaVm GetViewModelWithDropDownLists()
     {
-        var categories =
-            _ctx.Categories
-                .Select(x =>
-                    new SelectListItem
-                    {
-                        Value = x.Id.ToString(),
-                        Text = x.Name
-                    })
-                .ToList();
-        
-        var ingredients =
-            _ctx.Ingredients
-                .Select(x =>
-                    new SelectListItem
-                    {
-                        Value = x.Id.ToString(),
-                        Text = x.Name
-                    })
-                .ToList();
-        
-        var pizzaVm = new PizzaViewModel
+        return new PizzaVm
         {
             Pizza = new Pizza(), 
-            Categories = categories,
-            Ingredients = ingredients
+            Categories = _unitOfWork.Category.GetSelectListItem(),
+            Ingredients = _unitOfWork.Ingredient.GetSelectListItem()
         };
-
-        return pizzaVm;
     }
 }

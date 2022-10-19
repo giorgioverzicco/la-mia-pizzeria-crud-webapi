@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using la_mia_pizzeria_crud_webapi.Data;
+using la_mia_pizzeria_crud_webapi.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,21 +14,21 @@ namespace la_mia_pizzeria_crud_webapi.Controllers.Api
     [ApiController]
     public class PizzasController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PizzasController(ApplicationDbContext db)
+        public PizzasController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public IActionResult Get(string? name)
         {
-            var pizzas = _db.Pizzas.AsQueryable();
+            var pizzas = _unitOfWork.Pizza.GetAll();
             
             if (name is not null)
             {
-                pizzas = pizzas.Where(x => x.Name.Contains(name));
+                pizzas = pizzas.Where(x => x.Name.ToLower().Contains(name.ToLower()));
             }
             
             return Ok(pizzas.ToList());
@@ -37,7 +38,7 @@ namespace la_mia_pizzeria_crud_webapi.Controllers.Api
         [Route("{id:int}")]
         public IActionResult GetById(int id)
         {
-            var pizza = _db.Pizzas.Find(id);
+            var pizza = _unitOfWork.Pizza.GetFirstOrDefault(x => x.Id == id);
 
             if (pizza is null)
             {
